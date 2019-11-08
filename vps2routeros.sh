@@ -72,7 +72,7 @@ confirm || exit -1
 
 echo "installing packages"
 apt-get update -y
-apt-get install -y qemu-utils pv psmisc
+apt-get install -y qemu-utils pv psmisc parted
 
 echo "download image"
 wget ${ROUTEROS_URL} -O chr.img.zip
@@ -90,7 +90,7 @@ qemu-nbd -c /dev/nbd0 chr.qcow2
 echo "waiting qemu-nbd"
 sleep 5
 partprobe /dev/nbd0
-mount /dev/nbd0p2 /mnt
+mount /dev/nbd0p1 /mnt
 
 echo "write init script"
 cat > /mnt/rw/autorun.scr <<EOF
@@ -105,11 +105,11 @@ EOF
 echo "unmount image"
 umount /mnt
 
-echo "resize partition"
-echo -e 'd\n2\nn\np\n2\n65537\n\nw\n' | fdisk /dev/nbd0
-e2fsck -f -y /dev/nbd0p2 || true
-resize2fs /dev/nbd0p2
-sleep 5
+#echo "resize partition"
+#echo -e 'd\n2\nn\np\n2\n65537\n\nw\n' | fdisk /dev/nbd0
+#e2fsck -f -y /dev/nbd0p2 || true
+#resize2fs /dev/nbd0p2
+#sleep 5
 
 echo "move image to RAM (this will take quite a while)"
 mount -t tmpfs tmpfs /mnt
